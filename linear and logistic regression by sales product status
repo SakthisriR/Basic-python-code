@@ -1,0 +1,95 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMtxoYOwzJDioPjxPEsEWo0",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/SakthisriR/Basic-python-code/blob/main/linear%20and%20logistic%20regression%20by%20sales%20product%20status\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 9,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "J5X5ygCl0oZC",
+        "outputId": "572c09b4-4a7b-46ec-f2f0-cb8b22c0c3e3"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "current stocks: 32\n",
+            "daily sales: 44\n",
+            "remaining stocks: 28\n",
+            "product is available\n"
+          ]
+        }
+      ],
+      "source": [
+        "import numpy as np\n",
+        "from sklearn.linear_model import LinearRegression,LogisticRegression\n",
+        "#sample data\n",
+        "#current sale,daily sales\n",
+        "X=np.array([[100,70],[55,90],[80,5],[50,35],[68,37],[66,5],[5,5]])\n",
+        "\n",
+        "#linear regression remaining stacks\n",
+        "y_quantity=np.array([5,23,4,8,43,16,33])\n",
+        "\n",
+        "#logistic regression stack =0 no,stock=1 yes\n",
+        "y_status=np.array([1,0,0,1,1,1,1])\n",
+        "\n",
+        "#train models\n",
+        "linear=LinearRegression()\n",
+        "linear.fit(X,y_quantity)\n",
+        "\n",
+        "logistic=LogisticRegression()\n",
+        "logistic.fit(X,y_status)\n",
+        "\n",
+        "#enter the products\n",
+        "\n",
+        "stocks=32\n",
+        "sales=44\n",
+        "product=np.array([[stocks,sales]])\n",
+        "\n",
+        "#predict quantity\n",
+        "quantity=max(0,round(linear.predict(product)[0]))\n",
+        "\n",
+        "#product availabilty\n",
+        "status=logistic.predict(product)[0]\n",
+        "\n",
+        "\n",
+        "print(\"current stocks:\",stocks)\n",
+        "print(\"daily sales:\",sales)\n",
+        "print(\"remaining stocks:\",quantity)\n",
+        "\n",
+        "if status==1 and quantity >0:\n",
+        "  print(\"product is available\")\n",
+        "else:\n",
+        "  print(\"product is not available\")"
+      ]
+    }
+  ]
+}
