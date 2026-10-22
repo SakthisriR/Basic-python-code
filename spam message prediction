@@ -1,0 +1,151 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyM4qDS6OJQDrvRdY2wxjsXS",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/SakthisriR/Basic-python-code/blob/main/spam%20message%20prediction\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "id": "qHy1nMmQ3Nv_"
+      },
+      "outputs": [],
+      "source": [
+        "\n",
+        "!pip install -q transformers torch pillow\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "# Spam Message Detection using Machine Learning\n",
+        "\n",
+        "# 1. Import libraries\n",
+        "from sklearn.feature_extraction.text import CountVectorizer\n",
+        "from sklearn.model_selection import train_test_split\n",
+        "from sklearn.naive_bayes import MultinomialNB\n",
+        "from sklearn.metrics import accuracy_score\n",
+        "\n",
+        "# 2. Sample dataset\n",
+        "messages = [\n",
+        "    \"Congratulations you won a free prize\",\n",
+        "    \"Claim your free gift now\",\n",
+        "    \"Win cash now click here\",\n",
+        "    \"You have won a lottery\",\n",
+        "    \"Free offer limited time\",\n",
+        "    \"Click here to claim your reward\",\n",
+        "    \"You won a free mobile phone\",\n",
+        "    \"Get free money now\",\n",
+        "    \"Urgent claim your prize\",\n",
+        "    \"Win a free ticket today\",\n",
+        "    \"Hello how are you\",\n",
+        "    \"Good morning have a nice day\",\n",
+        "    \"Are you coming to college\",\n",
+        "    \"Please call me later\",\n",
+        "    \"I will meet you tomorrow\",\n",
+        "    \"Your class starts at ten\",\n",
+        "    \"Can you send me the notes\",\n",
+        "    \"Thank you for your help\",\n",
+        "    \"Where are you now\",\n",
+        "    \"See you in the evening\",\n",
+        "    \"Please submit your assignment\",\n",
+        "    \"Happy birthday my friend\",\n",
+        "    \"The meeting is at noon\",\n",
+        "    \"I am going home today\",\n",
+        "    \"Let us study together\",\n",
+        "    \"Your order has arrived\",\n",
+        "    \"Lunch is ready\",\n",
+        "    \"I will call you soon\",\n",
+        "    \"Did you finish your homework\",\n",
+        "    \"Have a safe journey\"\n",
+        "]\n",
+        "\n",
+        "# 1 = Spam, 0 = Not Spam\n",
+        "labels = [\n",
+        "    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,\n",
+        "    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n",
+        "    0, 0, 0, 0, 0, 0, 0, 0, 0, 0\n",
+        "]\n",
+        "\n",
+        "# 3. Convert text into numbers\n",
+        "vectorizer = CountVectorizer()\n",
+        "X = vectorizer.fit_transform(messages)\n",
+        "y = labels\n",
+        "\n",
+        "# 4. Split dataset\n",
+        "X_train, X_test, y_train, y_test = train_test_split(\n",
+        "    X, y, test_size=0.2, random_state=42, stratify=y\n",
+        ")\n",
+        "\n",
+        "# 5. Train the ML model\n",
+        "model = MultinomialNB()\n",
+        "model.fit(X_train, y_train)\n",
+        "\n",
+        "# 6. Test the model\n",
+        "predictions = model.predict(X_test)\n",
+        "accuracy = accuracy_score(y_test, predictions)\n",
+        "print(f\"Model accuracy: {accuracy * 100:.2f}%\")\n",
+        "\n",
+        "# 7. Test your own message\n",
+        "while True:\n",
+        "    message = input(\"\\nEnter a message (or type 'exit'): \")\n",
+        "\n",
+        "    if message.lower() == \"exit\":\n",
+        "        print(\"Program ended.\")\n",
+        "        break\n",
+        "\n",
+        "    message_vector = vectorizer.transform([message])\n",
+        "    prediction = model.predict(message_vector)[0]\n",
+        "\n",
+        "    if prediction == 1:\n",
+        "        print(\"Result: SPAM MESSAGE\")\n",
+        "    else:\n",
+        "        print(\"Result: NOT SPAM MESSAGE\")\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "KpBhUNMK358e",
+        "outputId": "a41366d2-8683-4608-df96-ce9bed23acec"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Model accuracy: 83.33%\n",
+            "\n",
+            "Enter a message (or type 'exit'): urgent\n",
+            "Result: SPAM MESSAGE\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
