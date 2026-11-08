@@ -1,0 +1,313 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyPWuuF0LMoQLlKsSNqdjQSb",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/SakthisriR/Basic-python-code/blob/main/house%20construction%20finishing%20%20prediiction\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 3,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "X1viHl4x9DcA",
+        "outputId": "30feffe4-20b8-49e1-ceb6-278c00198ee9"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "HOUSE CONSTRUCTION DATASET\n",
+            "   area  progress  workers  hours  weather  remaining_days\n",
+            "0  1200        40        5      8     Good              45\n",
+            "1  1500        60        8      8     Good              25\n",
+            "2  1800        50        6      7  Average              50\n",
+            "3  1000        80       10      8     Good              10\n",
+            "4  2000        30        5      6     Poor             100\n",
+            "5  1400        70        8      9     Good              18\n",
+            "6  1600        45        6      8  Average              55\n",
+            "7  1200        90       10      8     Good               5\n",
+            "8  2200        35        5      7     Poor             110\n",
+            "9  1800        75        9      8     Good              20\n",
+            "\n",
+            "Model Training Completed!\n",
+            "Mean Absolute Error: 7.39 days\n",
+            "\n",
+            "HOUSE COMPLETION PREDICTION\n",
+            "---------------------------\n",
+            "Remaining Days: 26\n",
+            "Completion: Not within this week\n",
+            "Completion: Within this month\n",
+            "Expected Completion Date: 2026-12-04 00:00:00\n"
+          ]
+        }
+      ],
+      "source": [
+        "\n",
+        "import pandas as pd\n",
+        "from sklearn.model_selection import train_test_split\n",
+        "from sklearn.ensemble import RandomForestRegressor\n",
+        "from sklearn.metrics import mean_absolute_error\n",
+        "from sklearn.preprocessing import OneHotEncoder\n",
+        "from sklearn.compose import ColumnTransformer\n",
+        "from sklearn.pipeline import make_pipeline\n",
+        "import numpy as np\n",
+        "\n",
+        "# STEP 1: CREATE DATASET\n",
+        "data = {\n",
+        "    \"area\": [1200,1500,1800,1000,2000,1400,1600,1200,2200,1800,\n",
+        "             1000,1300,1700,2500,1100,1900,1500,2100,900,2300,\n",
+        "             1250,1600,1400,2000,1800,1000,1550,2200,1300,1750,\n",
+        "             1200,1950,1450,2400,1600,1100,1850,2050,950,2600],\n",
+        "    \"progress\": [40,60,50,80,30,70,45,90,35,75,\n",
+        "                 50,65,55,25,85,40,80,60,95,20,\n",
+        "                 70,30,55,85,65,25,75,50,90,35,\n",
+        "                 60,45,85,30,95,40,70,55,80,15],\n",
+        "    \"workers\": [5,8,6,10,5,8,6,10,5,9,\n",
+        "                4,7,8,5,9,6,10,8,8,4,\n",
+        "                7,5,6,12,8,4,9,7,10,5,\n",
+        "                7,6,11,5,12,5,9,7,8,4],\n",
+        "    \"hours\": [8,8,7,8,6,9,8,8,7,8,\n",
+        "              6,8,9,7,8,7,9,8,8,6,\n",
+        "              8,7,8,9,8,6,8,7,9,6,\n",
+        "              8,7,9,6,9,7,8,8,9,6],\n",
+        "    \"weather\": [\"Good\",\"Good\",\"Average\",\"Good\",\"Poor\",\n",
+        "                \"Good\",\"Average\",\"Good\",\"Poor\",\"Good\",\n",
+        "                \"Poor\",\"Average\",\"Good\",\"Poor\",\"Good\",\n",
+        "                \"Average\",\"Good\",\"Average\",\"Good\",\"Poor\",\n",
+        "                \"Good\",\"Average\",\"Poor\",\"Good\",\"Average\",\n",
+        "                \"Poor\",\"Good\",\"Average\",\"Good\",\"Poor\",\n",
+        "                \"Good\",\"Average\",\"Good\",\"Poor\",\"Good\",\n",
+        "                \"Average\",\"Good\",\"Average\",\"Good\",\"Poor\"],\n",
+        "    \"remaining_days\": [45,25,50,10,100,18,55,5,110,20,\n",
+        "                       65,30,35,140,8,75,12,45,3,160,\n",
+        "                       22,90,70,15,35,95,18,65,6,105,\n",
+        "                       28,70,10,135,4,55,25,55,9,180]\n",
+        "}\n",
+        "\n",
+        "df = pd.DataFrame(data)\n",
+        "\n",
+        "print(\"HOUSE CONSTRUCTION DATASET\")\n",
+        "print(df.head(10))\n",
+        "\n",
+        "# STEP 2: INPUT AND OUTPUT\n",
+        "X = df.drop(\"remaining_days\", axis=1)\n",
+        "y = df[\"remaining_days\"]\n",
+        "\n",
+        "# STEP 3: ENCODE WEATHER\n",
+        "preprocessor = ColumnTransformer([\n",
+        "    (\"weather\", OneHotEncoder(handle_unknown=\"ignore\"),\n",
+        "     [\"weather\"])\n",
+        "], remainder=\"passthrough\")\n",
+        "\n",
+        "# STEP 4: CREATE MODEL\n",
+        "model = make_pipeline(\n",
+        "    preprocessor,\n",
+        "    RandomForestRegressor(\n",
+        "        n_estimators=100,\n",
+        "        random_state=42\n",
+        "    )\n",
+        ")\n",
+        "\n",
+        "# STEP 5: SPLIT DATASET\n",
+        "X_train, X_test, y_train, y_test = train_test_split(\n",
+        "    X, y, test_size=0.2, random_state=42\n",
+        ")\n",
+        "\n",
+        "# STEP 6: TRAIN MODEL\n",
+        "model.fit(X_train, y_train)\n",
+        "\n",
+        "print(\"\\nModel Training Completed!\")\n",
+        "\n",
+        "# STEP 7: TEST MODEL\n",
+        "predictions = model.predict(X_test)\n",
+        "\n",
+        "mae = mean_absolute_error(y_test, predictions)\n",
+        "print(\"Mean Absolute Error:\", round(mae, 2), \"days\")\n",
+        "\n",
+        "# STEP 8: NEW HOUSE DETAILS\n",
+        "new_house = pd.DataFrame([{\n",
+        "    \"area\": 1500,\n",
+        "    \"progress\": 65,\n",
+        "    \"workers\": 8,\n",
+        "    \"hours\": 8,\n",
+        "    \"weather\": \"Good\"\n",
+        "}])\n",
+        "\n",
+        "# STEP 9: PREDICTION\n",
+        "days = max(0, round(model.predict(new_house)[0]))\n",
+        "\n",
+        "print(\"\\nHOUSE COMPLETION PREDICTION\")\n",
+        "print(\"---------------------------\")\n",
+        "print(\"Remaining Days:\", days)\n",
+        "\n",
+        "if days <= 7:\n",
+        "    print(\"Completion: Within this week\")\n",
+        "else:\n",
+        "    print(\"Completion: Not within this week\")\n",
+        "\n",
+        "if days <= 30:\n",
+        "    print(\"Completion: Within this month\")\n",
+        "else:\n",
+        "    print(\"Completion: Not within this month\")\n",
+        "\n",
+        "print(\"Expected Completion Date:\",\n",
+        "      pd.Timestamp.today().normalize() +\n",
+        "      pd.Timedelta(days=days))\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "pip install pandas scikit-learn"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "xg09VLzq9Hux",
+        "outputId": "7ce27c61-7bc5-4051-93f2-4e373d5f60d4"
+      },
+      "execution_count": 1,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Requirement already satisfied: pandas in /usr/local/lib/python3.13/dist-packages (2.2.3)\n",
+            "Requirement already satisfied: scikit-learn in /usr/local/lib/python3.13/dist-packages (1.6.1)\n",
+            "Requirement already satisfied: numpy>=1.26.0 in /usr/local/lib/python3.13/dist-packages (from pandas) (2.4.6)\n",
+            "Requirement already satisfied: python-dateutil>=2.8.2 in /usr/local/lib/python3.13/dist-packages (from pandas) (2.9.0.post0)\n",
+            "Requirement already satisfied: pytz>=2020.1 in /usr/local/lib/python3.13/dist-packages (from pandas) (2025.2)\n",
+            "Requirement already satisfied: tzdata>=2022.7 in /usr/local/lib/python3.13/dist-packages (from pandas) (2026.6)\n",
+            "Requirement already satisfied: scipy>=1.6.0 in /usr/local/lib/python3.13/dist-packages (from scikit-learn) (1.16.3)\n",
+            "Requirement already satisfied: joblib>=1.2.0 in /usr/local/lib/python3.13/dist-packages (from scikit-learn) (1.6.0)\n",
+            "Requirement already satisfied: threadpoolctl>=3.1.0 in /usr/local/lib/python3.13/dist-packages (from scikit-learn) (3.7.0)\n",
+            "Requirement already satisfied: cloudpickle>=3.0 in /usr/local/lib/python3.13/dist-packages (from joblib>=1.2.0->scikit-learn) (3.1.2)\n",
+            "Requirement already satisfied: six>=1.5 in /usr/local/lib/python3.13/dist-packages (from python-dateutil>=2.8.2->pandas) (1.17.0)\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "python house_prediction.py"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 106
+        },
+        "id": "2_m056PI9L_N",
+        "outputId": "f816d7af-311b-4f0e-f219-51882b79598a"
+      },
+      "execution_count": 5,
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "SyntaxError",
+          "evalue": "invalid syntax (3743035755.py, line 1)",
+          "traceback": [
+            "\u001b[0;36m  File \u001b[0;32m\"/tmp/ipykernel_684/3743035755.py\"\u001b[0;36m, line \u001b[0;32m1\u001b[0m\n\u001b[0;31m    python house_prediction.py\u001b[0m\n\u001b[0m           ^\u001b[0m\n\u001b[0;31mSyntaxError\u001b[0m\u001b[0;31m:\u001b[0m invalid syntax\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!python house_prediction.py"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "Ewa31grI9xEd",
+        "outputId": "ad2919d7-19f8-4ac8-e85f-e68d5de547d8"
+      },
+      "execution_count": 6,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "python3: can't open file '/content/house_prediction.py': [Errno 2] No such file or directory\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "%%writefile house_prediction.py\n",
+        "\n",
+        "print(\"House Construction Predictor Started!\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "_m_DTpsl99S3",
+        "outputId": "6b75821e-bb93-4bd8-e55a-bca0d6405c1b"
+      },
+      "execution_count": 7,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Writing house_prediction.py\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!python house_prediction.py\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "c_Y8KIbS9_bH",
+        "outputId": "e3fc1fca-ff91-4571-e8ab-56e0115171de"
+      },
+      "execution_count": 8,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "House Construction Predictor Started!\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
